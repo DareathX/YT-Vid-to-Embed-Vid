@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Switch to embed video
+// @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  Stop youtube
