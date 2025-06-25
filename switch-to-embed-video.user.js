@@ -46,7 +46,7 @@ function replacePlayerWithEmbed() {
 
     createNewIframe(videoId, videoContainer);
     console.log('New iframe created.')
-    addEventListeners()
+    addEventListeners(videoElement)
 }
 
 function createNewIframe(videoId, parent) {
@@ -59,7 +59,7 @@ function createNewIframe(videoId, parent) {
 }
 
 
-function addEventListeners() {
+function addEventListeners(videoElement) {
     let iframeElement = document.querySelector(".newIframeFromEmbed")
     iframeElement.addEventListener('load', function () {
         let moviePlayer = this.contentWindow.document.querySelector("#movie_player")
@@ -69,6 +69,10 @@ function addEventListeners() {
 
     if (listenersAttached) return;
     listenersAttached = true;
+
+    videoElement.addEventListener('playing', () => {
+         videoElement.pause();
+    });
 
     window.addEventListener('mousedown', function (e) {
         let newVideo = e.target.closest('ytd-compact-video-renderer.style-scope');
