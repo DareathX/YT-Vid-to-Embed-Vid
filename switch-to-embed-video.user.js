@@ -40,9 +40,11 @@ function replacePlayerWithEmbed() {
     let videoId = document.querySelector('ytd-watch-flexy.style-scope').getAttribute('video-id')
 
     let videoElement = videoContainer.querySelector('.video-stream')
-    videoElement.pause()
-    videoElement.currentTime = 37800;
-    videoElement.setAttribute('display', 'none')
+    if (!videoElement) {
+        videoElement.pause()
+        videoElement.currentTime = 37800;
+        videoElement.setAttribute('display', 'none')
+    }
 
     createNewIframe(videoId, videoContainer);
     console.log('New iframe created.')
@@ -58,46 +60,59 @@ function createNewIframe(videoId, parent) {
     parent.prepend(newElement)
 }
 
-
 function addEventListeners(videoElement) {
     let iframeElement = document.querySelector(".newIframeFromEmbed")
-    iframeElement.addEventListener('load', function () {
-        let moviePlayer = this.contentWindow.document.querySelector("#movie_player")
-        if(!moviePlayer ) return
-        moviePlayer.focus()
-    });
+    if (!iframeElement) iframeElement.addEventListener('load', loadHandler)
 
     if (listenersAttached) return;
     listenersAttached = true;
+    videoElement._playingHandler = function() { playingHandler(videoElement);};
+    videoElement.addEventListener('playing', videoElement._playingHandler);
 
-    videoElement.addEventListener('playing', () => {
-         videoElement.pause();
-    });
+    window.addEventListener('mousedown', mousedownHandler);
+    window.addEventListener('popstate', popstateHandler);
+    window.addEventListener('keydown', keydownHandler, true);
+}
 
-    window.addEventListener('mousedown', function (e) {
-        let newVideo = e.target.closest('ytd-compact-video-renderer.style-scope');
-        let redirect = e.target.closest('#endpoint');
-        let searchButton = e.target.closest('.ytSearchboxComponentSearchButton')
-        if (!newVideo && !redirect && !searchButton) return
+function loadHandler() {
+    let moviePlayer = this.contentWindow.document.querySelector("#movie_player")
+    if(!moviePlayer ) return
+    moviePlayer.focus()
+}
 
-        let iframe = document.querySelector('.newIframeFromEmbed')
-        if(!iframe) return
-        iframe.remove();
-    });
+function playingHandler(videoElement) {
+    videoElement.pause()
+}
 
-    window.addEventListener('popstate', function (event) {
-        let iframe = document.querySelector('.newIframeFromEmbed')
-        if(!iframe) return
-        iframe.remove();
-    });
+function mousedownHandler(e) {
+    let newVideo = e.target.closest('ytd-compact-video-renderer.style-scope');
+    let redirect = e.target.closest('#endpoint');
+    let searchButton = e.target.closest('.ytSearchboxComponentSearchButton')
+    if (!newVideo && !redirect && !searchButton) return
+    removeIframe('mousedown', mousedownHandler)
+}
 
-    window.addEventListener('keydown', function onEvent(e) {
-        if (e.keyCode === 13) {
-            let iframe = document.querySelector('.newIframeFromEmbed')
-            if(!iframe) return
-            iframe.remove();
-        }
-    }, true);
+function popstateHandler() {
+    removeIframe('popstate', popstateHandler)
+}
+
+function keydownHandler(e) {
+    if (e.keyCode !== 13) return
+    removeIframe('keydown', keydownHandler, true)
+}
+
+function removeIframe(listener, func, bool = false) {
+    let iframe = document.querySelector('.newIframeFromEmbed')
+    if(!iframe) return
+    window.removeEventListener(listener, func, bool);
+    iframe.removeEventListener('load', loadHandler)
+
+    let videoElement = document.querySelector('.video-stream')
+    videoElement.removeEventListener('playing', videoElement._playingHandler);
+    delete videoElement._playingHandler;
+
+    listenersAttached =false
+    iframe.remove();
 }
 
 function runWhenReady(readySelector) {
