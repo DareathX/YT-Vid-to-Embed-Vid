@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -40,7 +40,7 @@ function replacePlayerWithEmbed() {
     let videoId = document.querySelector('ytd-watch-flexy.style-scope').getAttribute('video-id')
 
     let videoElement = videoContainer.querySelector('.video-stream')
-    if (!videoElement) {
+    if (videoElement) {
         videoElement.pause()
         videoElement.currentTime = 37800;
         videoElement.setAttribute('display', 'none')
