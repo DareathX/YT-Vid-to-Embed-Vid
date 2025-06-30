@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      1.0
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -91,11 +91,12 @@ function playingHandler(videoElement) {
 }
 
 function mousedownHandler(e) {
-    let newVideo = e.target.closest('ytd-compact-video-renderer.style-scope');
+    let newVideo = e.target.closest('ytd-compact-video-renderer.style-scope.ytd-item-section-renderer');
+    let newPlaylist = e.target.closest('yt-lockup-view-model.ytd-item-section-renderer.lockup')
     let redirect = e.target.closest('#endpoint');
     let playlist = e.target.closest('#wc-endpoint')
     let searchButton = e.target.closest('.ytSearchboxComponentSearchButton')
-    if (!newVideo && !redirect && !playlist && !searchButton) return
+    if (!newVideo && !newPlaylist && !redirect && !playlist && !searchButton) return
     removeIframe('mousedown', mousedownHandler)
 }
 
