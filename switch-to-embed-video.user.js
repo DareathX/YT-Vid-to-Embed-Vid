@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -42,8 +42,12 @@ function replacePlayerWithEmbed() {
     let videoElement = videoContainer.querySelector('.video-stream')
     if (videoElement) {
         videoElement.pause()
-        videoElement.currentTime = 37800;
-        videoElement.setAttribute('display', 'none')
+    }
+    
+    let movieElement = videoContainer.querySelector('#movie_player')
+    if (movieElement) {
+        movieElement.style.display = 'none'
+        movieElement.style.position = 'relative';
     }
 
     createNewIframe(videoId, videoContainer);
@@ -55,7 +59,8 @@ function createNewIframe(videoId, parent) {
     const newElement = document.createElement('iframe')
     newElement.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1'
     newElement.style.width = '100%'
-    newElement.style.height = '77vh'
+    newElement.style.height = '100%'
+    newElement.style.position = 'absolute';
     newElement.className = 'newIframeFromEmbed'
     newElement.referrerPolicy = 'origin'
     parent.prepend(newElement)
@@ -88,8 +93,9 @@ function playingHandler(videoElement) {
 function mousedownHandler(e) {
     let newVideo = e.target.closest('ytd-compact-video-renderer.style-scope');
     let redirect = e.target.closest('#endpoint');
+    let playlist = e.target.closest('#wc-endpoint')
     let searchButton = e.target.closest('.ytSearchboxComponentSearchButton')
-    if (!newVideo && !redirect && !searchButton) return
+    if (!newVideo && !redirect && !playlist && !searchButton) return
     removeIframe('mousedown', mousedownHandler)
 }
 
@@ -112,7 +118,7 @@ function removeIframe(listener, func, bool = false) {
     videoElement.removeEventListener('playing', videoElement._playingHandler);
     delete videoElement._playingHandler;
 
-    listenersAttached =false
+    listenersAttached = false
     iframe.remove();
 }
 
