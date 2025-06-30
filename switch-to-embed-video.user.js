@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -119,6 +119,9 @@ function removeIframe(listener, func, bool = false) {
     videoElement.removeEventListener('playing', videoElement._playingHandler);
     delete videoElement._playingHandler;
 
+    let movieElement = document.querySelector('#ytd-player > div:nth-child(1) > #movie_player')
+    movieElement.style.display = ""
+    
     listenersAttached = false
     iframe.remove();
 }
