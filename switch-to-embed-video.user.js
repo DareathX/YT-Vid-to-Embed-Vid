@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -63,7 +63,7 @@ function createNewIframe(videoId, parent) {
 
 function addEventListeners(videoElement) {
     let iframeElement = document.querySelector(".newIframeFromEmbed")
-    if (!iframeElement) iframeElement.addEventListener('load', loadHandler)
+    if (iframeElement) iframeElement.addEventListener('load', loadHandler)
 
     if (listenersAttached) return;
     listenersAttached = true;
