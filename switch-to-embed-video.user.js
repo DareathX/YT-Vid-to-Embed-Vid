@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -40,20 +40,16 @@
         let videoContainer = document.querySelector('#ytd-player > div:nth-child(1)')
         let videoId = document.querySelector('ytd-watch-flexy.style-scope').getAttribute('video-id')
 
-        let videoElement = videoContainer.querySelector('.video-stream')
-        if (videoElement) {
-            videoElement.pause()
-        }
-
         let movieElement = videoContainer.querySelector('#movie_player')
         if (movieElement) {
             movieElement.style.display = 'none'
             movieElement.style.position = 'relative';
+            movieElement.pauseVideo();
         }
 
         createNewIframe(videoId, videoContainer);
         console.log('New iframe created.')
-        addEventListeners(videoElement)
+        addEventListeners(movieElement)
     }
 
     function createNewIframe(videoId, parent) {
@@ -67,14 +63,14 @@
         parent.prepend(newElement)
     }
 
-    function addEventListeners(videoElement) {
+    function addEventListeners(movieElement) {
         let iframeElement = document.querySelector(".newIframeFromEmbed")
         if (iframeElement) iframeElement.addEventListener('load', loadHandler)
 
         if (listenersAttached) return;
         listenersAttached = true;
-        videoElement._playingHandler = function() { playingHandler(videoElement);};
-        videoElement.addEventListener('playing', videoElement._playingHandler);
+        movieElement._playingHandler = function() { playingHandler(movieElement);};
+        movieElement.addEventListener('onStateChange', movieElement._playingHandler);
 
         window.addEventListener('mousedown', mousedownHandler);
         window.addEventListener('popstate', popstateHandler);
@@ -87,8 +83,8 @@
         moviePlayer.focus()
     }
 
-    function playingHandler(videoElement) {
-        videoElement.pause()
+    function playingHandler(movieElement) {
+        if (movieElement.getPlayerState() != 2) movieElement.pauseVideo()
     }
 
     function mousedownHandler(e) {
