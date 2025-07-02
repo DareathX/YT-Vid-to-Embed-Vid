@@ -112,12 +112,10 @@
         window.removeEventListener(listener, func, bool);
         iframe.removeEventListener('load', loadHandler)
 
-        let videoElement = document.querySelector('.video-stream')
-        videoElement.removeEventListener('playing', videoElement._playingHandler);
-        delete videoElement._playingHandler;
-
         let movieElement = document.querySelector('#ytd-player > div:nth-child(1) > #movie_player')
         movieElement.style.display = ""
+        movieElement.removeEventListener('onStateChange', movieElement._playingHandler);
+        delete movieElement._playingHandler;
 
         listenersAttached = false
         iframe.remove();
