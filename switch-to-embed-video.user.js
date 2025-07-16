@@ -93,8 +93,27 @@
         let redirect = e.target.closest('#endpoint');
         let playlist = e.target.closest('#wc-endpoint')
         let searchButton = e.target.closest('.ytSearchboxComponentSearchButton')
-        if (!newVideo && !newPlaylist && !redirect && !playlist && !searchButton) return
-        removeIframe('mousedown', mousedownHandler)
+        if (newVideo || newPlaylist || redirect || playlist || searchButton) {
+            removeIframe('mousedown', mousedownHandler)
+            return
+        }
+
+        let timestampUrl = e.target.closest('.yt-core-attributed-string__link.yt-core-attributed-string__link--call-to-action-color')
+        if (!timestampUrl) return
+        timestampUrl = timestampUrl.href
+        if (!timestampUrl.includes('/watch?v=')) return
+
+        const params = timestampUrl.split(/[?&]/);
+        const videoId = params.find(p => p.startsWith('v=')).split('=')[1];
+        const time = ((params.find(p => p.startsWith('t=')) || "").split('=')[1] || "").replace('s', '');
+
+        let embed = document.querySelector('.newIframeFromEmbed')
+        if (time) {
+            embed.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=${time}`
+        } else
+        {
+            embed.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=0`
+        }
     }
 
     function popstateHandler() {
