@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.4
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
