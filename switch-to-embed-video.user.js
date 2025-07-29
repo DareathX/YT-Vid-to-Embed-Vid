@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -90,7 +90,7 @@
     function mousedownHandler(e) {
         let newVideo = e.target.closest('ytd-compact-video-renderer.style-scope.ytd-item-section-renderer');
         let newPlaylist = e.target.closest('yt-lockup-view-model.ytd-item-section-renderer.lockup')
-        let redirect = e.target.closest('#endpoint');
+        let redirect = e.target.closest('.yt-simple-endpoint');
         let playlist = e.target.closest('#wc-endpoint')
         let searchButton = e.target.closest('.ytSearchboxComponentSearchButton')
         if (newVideo || newPlaylist || redirect || playlist || searchButton) {
