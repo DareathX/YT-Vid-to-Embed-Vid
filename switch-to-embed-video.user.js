@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -19,6 +19,8 @@
     window.hasRunMyScript = true;
     let listenersAttached = false;
     let switchButtonFound = false;
+    let PAUSED = 2
+    let BUFFERING = 3;
 
     runOnFound('#menu > ytd-menu-renderer.style-scope.ytd-watch-metadata')
 
@@ -36,30 +38,35 @@
 
     function replacePlayerWithEmbed() {
         let iframe = document.querySelector('.newIframeFromEmbed')
-        if (iframe) iframe.remove();
         let videoContainer = document.querySelector('#ytd-player > div:nth-child(1)')
         let videoId = document.querySelector('ytd-watch-flexy.style-scope').getAttribute('video-id')
-
         let movieElement = videoContainer.querySelector('#movie_player')
-        if (movieElement) {
-            movieElement.style.display = 'none'
-            movieElement.style.position = 'relative';
-            movieElement.pauseVideo();
+        if (iframe) {
+            movieElement.seekTo(iframe.contentWindow.document.querySelector("#movie_player").getCurrentTime(), true)
+            removeIframe('mousedown', mousedownHandler)
+            removeIframe('popstate', popstateHandler)
+            removeIframe('keydown', keydownHandler, true)
+            movieElement.playVideo();
+            return;
         }
 
-        createNewIframe(videoId, videoContainer);
+        movieElement.style.display = 'none'
+        movieElement.style.position = 'relative';
+        movieElement.pauseVideo();
+
+        createNewIframe(videoId, videoContainer, movieElement.getCurrentTime());
         console.log('New iframe created.')
         addEventListeners(movieElement)
     }
 
-    function createNewIframe(videoId, parent) {
+    function createNewIframe(videoId, parent, seconds) {
         const newElement = document.createElement('iframe')
-        newElement.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1'
+        newElement.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=${Math.floor(seconds)}`
         newElement.style.width = '100%'
         newElement.style.height = '100%'
         newElement.style.position = 'absolute';
         newElement.className = 'newIframeFromEmbed'
-        newElement.referrerPolicy = 'origin'
+        newElement.referrerPolicy = 'no-referrer'
         parent.prepend(newElement)
     }
 
@@ -84,7 +91,7 @@
     }
 
     function playingHandler(movieElement) {
-        if (movieElement.getPlayerState() != 2) movieElement.pauseVideo()
+        if (movieElement.getPlayerState() != PAUSED) movieElement.pauseVideo()
     }
 
     function mousedownHandler(e) {
@@ -144,10 +151,17 @@
         const observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 const elem = document.querySelector(selector)
-                if (elem && !switchButtonFound) {
-                    observer.disconnect();
-                    switchButtonFound = true;
-                    createNewButton(elem);
+                if (!elem || switchButtonFound) continue;
+                observer.disconnect();
+                switchButtonFound = true;
+                createNewButton(elem);
+                let player = document.querySelector('#movie_player');
+                if (player?.getPlayerState() === BUFFERING) {
+                    setTimeout(() => {
+                        if (player.getPlayerState() === BUFFERING) {
+                            replacePlayerWithEmbed();
+                        }
+                    }, 2000)
                 }
             }});
 
