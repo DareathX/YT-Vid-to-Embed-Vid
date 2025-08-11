@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.7
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -21,6 +21,7 @@
     let switchButtonFound = false;
     let PAUSED = 2
     let BUFFERING = 3;
+    let UNSTARTED = -1;
 
     runOnFound('#menu > ytd-menu-renderer.style-scope.ytd-watch-metadata')
 
@@ -156,12 +157,12 @@
                 switchButtonFound = true;
                 createNewButton(elem);
                 let player = document.querySelector('#movie_player');
-                if (player?.getPlayerState() === BUFFERING) {
+                if (player?.getPlayerState() === BUFFERING || player?.getPlayerState() === UNSTARTED) {
                     setTimeout(() => {
-                        if (player.getPlayerState() === BUFFERING) {
+                        if (player.getPlayerState() === BUFFERING || player?.getPlayerState() === UNSTARTED) {
                             replacePlayerWithEmbed();
                         }
-                    }, 2000)
+                    }, 1500)
                 }
             }});
 
