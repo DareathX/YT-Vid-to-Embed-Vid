@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.7
+// @version      1.8
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -67,7 +67,7 @@
         newElement.style.height = '100%'
         newElement.style.position = 'absolute';
         newElement.className = 'newIframeFromEmbed'
-        newElement.referrerPolicy = 'no-referrer'
+        newElement.referrerPolicy = 'strict-origin-when-cross-origin'
         parent.prepend(newElement)
     }
 
