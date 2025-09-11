@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.8.1
+// @version      1.9
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -69,6 +69,7 @@
         newElement.className = 'newIframeFromEmbed'
         newElement.referrerPolicy = 'no-referrer'
         parent.prepend(newElement)
+        checkForError(newElement, videoId)
     }
 
     function addEventListeners(movieElement) {
@@ -131,6 +132,21 @@
     function keydownHandler(e) {
         if (e.keyCode !== 13) return
         removeIframe('keydown', keydownHandler, true)
+    }
+
+    function checkForError(iframe, videoId) {
+        setTimeout(() => {
+            if (iframe.contentWindow.document.querySelector('.ytp-error')) {
+                iframe.referrerPolicy = 'origin'
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=0`
+            }
+        }, 1500)
+        setTimeout(() => {
+            if (iframe.contentWindow.document.querySelector('.ytp-error')) {
+                const moviePlayer = document.querySelector('#movie_player')
+                replaceEmbedWithPlayer(moviePlayer, iframe)
+            }
+        }, 3000)
     }
 
     function removeIframe(listener, func, bool = false) {
