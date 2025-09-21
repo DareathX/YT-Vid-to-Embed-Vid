@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.9
+// @version      1.9.1
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -137,7 +137,7 @@
     function checkForError(iframe, videoId) {
         setTimeout(() => {
             if (iframe.contentWindow.document.querySelector('.ytp-error')) {
-                iframe.referrerPolicy = 'origin'
+                iframe.referrerPolicy = 'no-referrer-when-downgrade'
                 iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&start=0`
             }
         }, 1500)
