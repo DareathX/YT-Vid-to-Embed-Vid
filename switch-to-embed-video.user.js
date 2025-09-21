@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         switch-to-embed-video
 // @namespace    http://tampermonkey.net/
-// @version      1.9.1
+// @version      2.0
 // @description  Stop youtube
 // @author       DareathX
 // @match        https://www.youtube.com/*
@@ -43,11 +43,7 @@
         let videoId = document.querySelector('ytd-watch-flexy.style-scope').getAttribute('video-id')
         let movieElement = videoContainer.querySelector('#movie_player')
         if (iframe) {
-            movieElement.seekTo(iframe.contentWindow.document.querySelector("#movie_player").getCurrentTime(), true)
-            removeIframe('mousedown', mousedownHandler)
-            removeIframe('popstate', popstateHandler)
-            removeIframe('keydown', keydownHandler, true)
-            movieElement.playVideo();
+            replaceEmbedWithPlayer(movieElement, iframe)
             return;
         }
 
@@ -58,6 +54,14 @@
         createNewIframe(videoId, videoContainer, movieElement.getCurrentTime());
         console.log('New iframe created.')
         addEventListeners(movieElement)
+    }
+    
+    function replaceEmbedWithPlayer(movieElement, iframe) {
+        movieElement.seekTo(iframe.contentWindow.document.querySelector("#movie_player").getCurrentTime(), true)
+        removeIframe('mousedown', mousedownHandler)
+        removeIframe('popstate', popstateHandler)
+        removeIframe('keydown', keydownHandler, true)
+        movieElement.playVideo();
     }
 
     function createNewIframe(videoId, parent, seconds) {
